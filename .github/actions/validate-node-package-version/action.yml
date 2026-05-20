@@ -17,8 +17,7 @@ runs:
   steps:
     - name: Get version from git tag
       id: get_version_from_git_tag
-      use: ./.github/actions/version
-      shell: bash
+      uses: ./.github/actions/version
 
     - name: Validate
       env:
