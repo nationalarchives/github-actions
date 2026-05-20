@@ -1,0 +1,74 @@
+name: Generate version number
+
+description: Generate a version number from a tag or branch falling back to a calver version for the main branch. The version number is expected to be in the format "X.Y.Z" where X, Y and Z are integers.
+
+outputs:
+  version:
+    description: The generated version number
+    value: ${{ steps.version.outputs.VERSION }}
+  version-major:
+    description: The generated major version number
+    value: ${{ steps.version.outputs.VERSION_MAJOR }}
+  version-major-minor:
+    description: The generated major.minor version number
+    value: ${{ steps.version.outputs.VERSION_MAJOR_MINOR }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Generate a version number from the branch name or tag name
+      id: branch_or_tag
+      env:
+        GITHUB_REF: ${{ github.ref }}
+        GITHUB_REF_NAME: ${{ github.ref_name }}
+        GITHUB_REF_TYPE: ${{ github.ref_type }}
+      run: |
+        echo "github.ref:                ${GITHUB_REF}"
+        echo "github.ref_name:           ${GITHUB_REF_NAME}"
+        echo "github.event.ref:          ${GITHUB_EVENT_REF}"
+
+        # Strip git ref prefix from version and replace "/" with "-" to make it a valid semver version
+        VERSION=$(echo "${GITHUB_REF}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's,/,-,g' | sed -e 's/^v//')
+        echo "Version from branch/tag:   ${VERSION}"
+        echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Generate a calver version number
+      id: calver
+      env:
+        GITHUB_RUN_NUMBER: ${{ github.run_number }}
+      run: |
+        CALVER=$(date +%y.%m.%d).${GITHUB_RUN_NUMBER}
+        echo "Calver:                    ${CALVER}"
+        echo "CALVER=${CALVER}" >> "$GITHUB_OUTPUT"
+      shell: bash
+
+    - name: Generate and validate the final version number
+      id: version
+      env:
+        VERSION: ${{ steps.branch_or_tag.outputs.VERSION }}
+        CALVER: ${{ steps.calver.outputs.CALVER }}
+      run: |
+        # Use the calver version for builds on the main branch
+        [[ "$VERSION" == "main" ]] && VERSION=${CALVER}
+
+        # Validate the version format
+        [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+
+        # Output the version number and its parts as GitHub Action outputs
+        echo "Final version number:      ${VERSION}"
+        echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
+
+        # Extract the major and minor version parts
+        VERSION_PART_MAJOR=$(echo "${VERSION}" | awk -F'.' '{print $1}')
+        VERSION_PART_MINOR=$(echo "${VERSION}" | awk -F'.' '{print $2}')
+
+        # Output the major version part
+        echo "Version major part:        ${VERSION_PART_MAJOR}"
+        echo "VERSION_MAJOR=${VERSION_PART_MAJOR}" >> "$GITHUB_OUTPUT"
+
+        # Output the major.minor version part
+        VERSION_PART_MAJOR_MINOR=${VERSION_PART_MAJOR}.${VERSION_PART_MINOR}
+        echo "Version major.minor part:  ${VERSION_PART_MAJOR_MINOR}"
+        echo "VERSION_MAJOR_MINOR=${VERSION_PART_MAJOR_MINOR}" >> "$GITHUB_OUTPUT"
+      shell: bash
