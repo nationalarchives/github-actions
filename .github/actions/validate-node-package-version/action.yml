@@ -15,10 +15,16 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: DEBUG
+      run: |
+        echo "INPUTS_PACKAGE_JSON_LOCATION: ${INPUTS_PACKAGE_JSON_LOCATION}"
+        echo "INPUTS_PACKAGE_LOCK_JSON_LOCATION: ${INPUTS_PACKAGE_LOCK_JSON_LOCATION}"
+        echo "GITHUB_ACTION_PATH: ${GITHUB_ACTION_PATH}"
+      shell: bash
+
     - name: Get version from git tag
       id: get_version_from_git_tag
-      uses: $GITHUB_ACTION_PATH/version@main # zizmor: ignore[unpinned-uses] Owned by The National Archives
-
+      uses: ${GITHUB_ACTION_PATH}/version@main # zizmor: ignore[unpinned-uses] Owned by The National Archives
 
     - name: Validate
       env:
