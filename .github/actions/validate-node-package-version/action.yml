@@ -17,9 +17,10 @@ runs:
   steps:
     - name: DEBUG
       run: |
-        echo "INPUTS_PACKAGE_JSON_LOCATION: ${INPUTS_PACKAGE_JSON_LOCATION}"
+        echo "INPUTS_PACKAGE_JSON_LOCATION:      ${INPUTS_PACKAGE_JSON_LOCATION}"
         echo "INPUTS_PACKAGE_LOCK_JSON_LOCATION: ${INPUTS_PACKAGE_LOCK_JSON_LOCATION}"
-        echo "GITHUB_ACTION_PATH: ${GITHUB_ACTION_PATH}"
+        echo "GITHUB_ACTION_PATH:                ${GITHUB_ACTION_PATH}"
+        echo "GITHUB_ACTION_REPOSITORY:          ${GITHUB_ACTION_REPOSITORY}"
       shell: bash
 
     - name: Get version from git tag
@@ -36,9 +37,9 @@ runs:
         CURRENT_VERSION=$(node -p "require('${INPUTS_PACKAGE_JSON_LOCATION}').version")
         PACKAGE_LOCK_VERSION=$(node -p "require('${INPUTS_PACKAGE_LOCK_JSON_LOCATION}').version")
 
-        echo "Version in package.json:        ${CURRENT_VERSION}"
-        echo "Version in package-lock.json:   ${PACKAGE_LOCK_VERSION}"
-        echo "Version to check against:       ${GIT_TAG_VERSION}"
+        echo "package.json version:      ${CURRENT_VERSION}"
+        echo "package-lock.json version: ${PACKAGE_LOCK_VERSION}"
+        echo "Version to check against:  ${GIT_TAG_VERSION}"
 
         [[ "${CURRENT_VERSION}" == "${PACKAGE_LOCK_VERSION}" ]] || (echo "Version ${CURRENT_VERSION} in package.json doesn't match version ${PACKAGE_LOCK_VERSION} in package-lock.json." && exit 1)
 
