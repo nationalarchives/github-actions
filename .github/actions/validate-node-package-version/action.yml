@@ -24,7 +24,7 @@ runs:
 
     - name: Get version from git tag
       id: get_version_from_git_tag
-      uses: ${GITHUB_ACTION_PATH}/version@main # zizmor: ignore[unpinned-uses] Owned by The National Archives
+      uses: nationalarchives/github-actions/.github/actions/version@main # zizmor: ignore[unpinned-uses] Owned by The National Archives
 
     - name: Validate
       env:
