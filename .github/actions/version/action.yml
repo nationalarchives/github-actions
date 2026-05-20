@@ -18,14 +18,10 @@ runs:
   steps:
     - name: Generate a version number from the branch name or tag name
       id: branch_or_tag
-      env:
-        GITHUB_REF: ${{ github.ref }}
-        GITHUB_REF_NAME: ${{ github.ref_name }}
-        GITHUB_REF_TYPE: ${{ github.ref_type }}
       run: |
-        echo "github.ref:                ${GITHUB_REF}"
-        echo "github.ref_name:           ${GITHUB_REF_NAME}"
-        echo "github.event.ref:          ${GITHUB_EVENT_REF}"
+        echo "$GITHUB_REF:               ${GITHUB_REF}"
+        echo "$GITHUB_REF_NAME:          ${GITHUB_REF_NAME}"
+        echo "$GITHUB_EVENT_REF:         ${GITHUB_EVENT_REF}"
 
         # Strip git ref prefix from version and replace "/" with "-" to make it a valid semver version
         VERSION=$(echo "${GITHUB_REF_NAME}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's,/,-,g' | sed -e 's/^v//')
