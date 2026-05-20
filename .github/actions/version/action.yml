@@ -28,7 +28,7 @@ runs:
         echo "github.event.ref:          ${GITHUB_EVENT_REF}"
 
         # Strip git ref prefix from version and replace "/" with "-" to make it a valid semver version
-        VERSION=$(echo "${GITHUB_REF}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's,/,-,g' | sed -e 's/^v//')
+        VERSION=$(echo "${GITHUB_REF_NAME}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's,/,-,g' | sed -e 's/^v//')
         echo "Version from branch/tag:   ${VERSION}"
         echo "VERSION=${VERSION}" >> "$GITHUB_OUTPUT"
       shell: bash
