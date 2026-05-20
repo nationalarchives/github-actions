@@ -24,24 +24,24 @@ runs:
       shell: bash
 
     - name: Get version from git tag
-      id: get_version_from_git_tag
+      id: version
       uses: nationalarchives/github-actions/.github/actions/version@main # zizmor: ignore[unpinned-uses] Owned by The National Archives
 
     - name: Validate
       env:
         INPUTS_PACKAGE_JSON_LOCATION: ${{ inputs.package-json-location }}
         INPUTS_PACKAGE_LOCK_JSON_LOCATION: ${{ inputs.package-lock-json-location }}
-        GIT_TAG_VERSION: ${{ steps.get_version_from_git_tag.outputs.version }}
+        VERSION: ${{ steps.version.outputs.version }}
       run: |
         # Get the version from package.json and package-lock.json using Node
-        CURRENT_VERSION=$(node -p "require('${INPUTS_PACKAGE_JSON_LOCATION}').version")
+        PACKAGE_VERSION=$(node -p "require('${INPUTS_PACKAGE_JSON_LOCATION}').version")
         PACKAGE_LOCK_VERSION=$(node -p "require('${INPUTS_PACKAGE_LOCK_JSON_LOCATION}').version")
 
-        echo "package.json version:      ${CURRENT_VERSION}"
+        echo "package.json version:      ${PACKAGE_VERSION}"
         echo "package-lock.json version: ${PACKAGE_LOCK_VERSION}"
-        echo "Version to check against:  ${GIT_TAG_VERSION}"
+        echo "Version to check against:  ${VERSION}"
 
-        [[ "${CURRENT_VERSION}" == "${PACKAGE_LOCK_VERSION}" ]] || (echo "Version ${CURRENT_VERSION} in package.json doesn't match version ${PACKAGE_LOCK_VERSION} in package-lock.json." && exit 1)
+        [[ "${PACKAGE_VERSION}" == "${PACKAGE_LOCK_VERSION}" ]] || (echo "Version ${PACKAGE_VERSION} in package.json doesn't match version ${PACKAGE_LOCK_VERSION} in package-lock.json." && exit 1)
 
-        [[ "${CURRENT_VERSION}" == "${GIT_TAG_VERSION}" ]] || (echo "The git tag ${GIT_TAG_VERSION} doesn't match the version in package.json." && exit 1)
+        [[ "${PACKAGE_VERSION}" == "${VERSION}" ]] || (echo "The branch/tag version ${VERSION} doesn't match version ${PACKAGE_VERSION} in package.json." && exit 1)
       shell: bash
